@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <i class="ti ti-traffic-lights" aria-hidden="true"></i>
+      <span>Traffic<br/>System</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
+        <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-page="road" onclick="showPage('road',this)">
+        <i class="ti ti-road" aria-hidden="true"></i>
+        <span>Road</span>
+      </a>
+      <a class="nav-item" data-page="add" onclick="showPage('add',this)">
+        <i class="ti ti-circle-plus" aria-hidden="true"></i>
+        <span>Add car</span>
+      </a>
+      <a class="nav-item" data-page="search" onclick="showPage('search',this)">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <span>Search</span>
+      </a>
+      <a class="nav-item" data-page="log" onclick="showPage('log',this)">
+        <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+        <span>Log</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="api-dot" id="api-dot"></span>
+      <span id="api-status-text">Connecting…</span>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Live overview of all lanes</p>
+        <button class="btn icon-btn" onclick="refreshAll()" title="Refresh">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card skeleton"></div>
+        <div class="stat-card skeleton"></div>
+        <div class="stat-card skeleton"></div>
+        <div class="stat-card skeleton"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-road" aria-hidden="true"></i> Main road</h2>
+          </div>
+          <div class="road-track" id="road-track-vis">
+            <span class="empty-lane">Loading…</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-flag-2" aria-hidden="true"></i> Exit lane</h2>
+          </div>
+          <div class="road-track exit" id="exit-track-vis">
+            <span class="empty-lane">Loading…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2><i class="ti ti-alert-triangle" aria-hidden="true"></i> Accident cars</h2>
+        </div>
+        <div class="car-list" id="dash-accident-list"></div>
+      </div>
+    </section>
+
+    <!-- ROAD -->
+    <section class="page" id="page-road">
+      <div class="page-header">
+        <h1>Road management</h1>
+        <p>Handle accidents and emergency vehicles</p>
+        <button class="btn icon-btn" onclick="loadRoadPage()" title="Refresh">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn danger" onclick="handleAccidents()">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i> Handle accidents
+        </button>
+        <button class="btn warning" onclick="handleEmergency()">
+          <i class="ti ti-ambulance" aria-hidden="true"></i> Handle emergency
+        </button>
+      </div>
+
+      <div class="three-col">
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-car" aria-hidden="true"></i> On road</h2>
+            <span class="count-badge" id="road-count">…</span>
+          </div>
+          <div class="car-list" id="road-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-flag-2" aria-hidden="true"></i> Exit lane</h2>
+            <span class="count-badge amber" id="exit-count">…</span>
+          </div>
+          <div class="car-list" id="exit-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-alert-circle" aria-hidden="true"></i> Accidents</h2>
+            <span class="count-badge red" id="accident-count">…</span>
+          </div>
+          <div class="car-list" id="accident-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD CAR -->
+    <section class="page" id="page-add">
+      <div class="page-header">
+        <h1>Add new car</h1>
+        <p>Insert a car into the road queue</p>
+      </div>
+
+      <div class="two-col-form">
+        <div class="card form-card">
+          <div class="card-head">
+            <h2><i class="ti ti-user" aria-hidden="true"></i> Car details</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="inp-name">Owner name</label>
+              <input type="text" id="inp-name" placeholder="e.g. Ahmed Mohamed" autocomplete="off" />
+            </div>
+            <div class="form-row">
+              <label for="inp-plate">Plate number</label>
+              <input type="number" id="inp-plate" placeholder="e.g. 12345" min="1" />
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <i class="ti ti-alert-triangle" aria-hidden="true" style="color:#A32D2D"></i>
+                <span>Has accident</span>
+              </div>
+              <div class="toggle" id="tog-accident" role="switch" aria-checked="false"
+                onclick="toggleIt('tog-accident')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <i class="ti ti-ambulance" aria-hidden="true" style="color:#854F0B"></i>
+                <span>Emergency vehicle</span>
+              </div>
+              <div class="toggle" id="tog-emergency" role="switch" aria-checked="false"
+                onclick="toggleIt('tog-emergency')"></div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn primary" onclick="addCar()">
+              <i class="ti ti-plus" aria-hidden="true"></i> Add to road
+            </button>
+            <button class="btn" onclick="clearForm()">
+              <i class="ti ti-x" aria-hidden="true"></i> Clear
+            </button>
+          </div>
+          <div id="add-feedback"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2><i class="ti ti-history" aria-hidden="true"></i> Recently added</h2>
+          </div>
+          <div class="car-list" id="recent-list">
+            <div class="no-data"><i class="ti ti-clock" aria-hidden="true"></i>No cars added yet</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="page" id="page-search">
+      <div class="page-header">
+        <h1>BST car search</h1>
+        <p>Binary search tree — search across all lanes</p>
+      </div>
+
+      <div class="card search-card">
+        <div class="search-tabs">
+          <button class="stab active" id="stab-plate" onclick="setSearchTab('plate')">
+            <i class="ti ti-123" aria-hidden="true"></i> By plate number
+          </button>
+          <button class="stab" id="stab-name" onclick="setSearchTab('name')">
+            <i class="ti ti-user" aria-hidden="true"></i> By owner name
+          </button>
+        </div>
+        <div class="search-row">
+          <input type="text" id="search-input" placeholder="Enter plate number…"
+            onkeydown="if(event.key==='Enter') doSearch()" />
+          <button class="btn primary" onclick="doSearch()">
+            <i class="ti ti-search" aria-hidden="true"></i> Search
+          </button>
+        </div>
+        <div id="search-result"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2><i class="ti ti-binary-tree-2" aria-hidden="true"></i> BST stats</h2>
+        </div>
+        <div class="stats-grid mini" id="bst-stats"></div>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="page" id="page-log">
+      <div class="page-header">
+        <h1>Activity log</h1>
+        <p>All system events stored in the database</p>
+        <button class="btn icon-btn" onclick="loadLog()" title="Refresh">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2><i class="ti ti-list" aria-hidden="true"></i> Recent events</h2>
+        </div>
+        <div id="log-container"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="api.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
