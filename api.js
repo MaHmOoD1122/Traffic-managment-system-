@@ -5,8 +5,8 @@
  */
 
 const API = (() => {
-  const BASE = "http://localhost:5000/api";
-
+  //const BASE = "http://localhost:5000/api";
+  const BASE = "/api";
   async function request(method, path, body) {
     const opts = {
       method,
